@@ -1,0 +1,32 @@
+- 5 react hooks đã sử dụng: 
+    useState, useEffect (trong LoginForm.jsx)
+    useSelector, useDispatch, useNavigate
+
+- axios: 
+    tạo đối tượng axios trong api.js, và dùng nó trong authSlice
+
+- react router:
+    dùng với useNavigate để chuyển trang, ở App.jsx
+
+- css framework: 
+    dùng antd trong các components
+
+- redux toolkit:
+    + global state: {
+        isAuth: đã đăng nhập chưa (true/false),
+        user: thông tin người dùng khi đăng nhập được ({email, name}),
+        accessToken: null,
+        status: trạng thái đăng nhập // 'idle' | 'loading' | 'error'
+        error: lỗi đăng nhập, string,
+    }
+
+    + luông hoạt động: Khi bấm nút submit ở login form, dispath hành động login ở authSlice, 
+        mang theo payload là {email, password}
+        Hàm login là một async function dùng axios để gọi api kiểm tra 
+        thông tin đăng nhập đúng chưa
+    + Nếu đăng nhập đúng thì sẽ chuyển page vào dashboard, nơi hiện thông tin người
+        dùng, và có một nút Logout để thoát ra, khi bấm vào nút này thì dispatch 
+        một hành động logout trong authSlice
+
+
+MISION PASSED PERFECT
