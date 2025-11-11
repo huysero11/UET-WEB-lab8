@@ -28,5 +28,14 @@
         dùng, và có một nút Logout để thoát ra, khi bấm vào nút này thì dispatch 
         một hành động logout trong authSlice
 
+- Demo: 
+    + email: admin@demo.com
+    + pw: 123456
 
+- Luồng jwt hoạt động
+    + /auth/login: BE kiểm tra email/password. Nếu đúng => ký JWT
+    + FE: Lưu accessToken vào Redux. Khi gọi API cần bảo vệ (ví dụ /me) thì gửi 
+        Authorization: Bearer <accessToken>
+    + /me: Middleware verifyJWT trên BE: const payload = jwt.verify(token, JWT_SECRET)
+    
 MISION PASSED PERFECT

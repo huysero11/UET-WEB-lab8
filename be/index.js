@@ -22,6 +22,7 @@ app.get("/", (req, res) => {
   res.send("Auth API is running");
 });
 
+// LOGIN: ký JWT và trả về
 app.post("/auth/login", (req, res) => {
   const { email, password } = req.body || {};
   const u = USERS.find((x) => x.email === email && x.password === password);
@@ -32,12 +33,29 @@ app.post("/auth/login", (req, res) => {
     JWT_SECRET,
     { expiresIn: "1h" }
   );
-
-  const { password: _pw, ...user } = u;
+  const { password: _, ...user } = u;
   res.json({ user, accessToken });
 });
 
-const PORT = 3000;
-app.listen(PORT, () =>
-  console.log(`Auth API running at http://localhost:${PORT}`)
-);
+// Middleware verify JWT
+function verifyJWT(req, res, next) {
+  const auth = req.headers.authorization || "";
+  const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
+  if (!token) return res.status(401).json({ message: "Missing token" });
+  try {
+    req.user = jwt.verify(token, JWT_SECRET); // {sub,email,roles,iat,exp}
+    next();
+  } catch {
+    res.status(401).json({ message: "Invalid or expired token" });
+  }
+}
+
+// Ví dụ API cần đăng nhập
+app.get("/me", verifyJWT, (req, res) => {
+  const me = USERS.find((u) => u.id === req.user.sub);
+  if (!me) return res.status(404).json({ message: "User not found" });
+  const { password: _, ...safe } = me;
+  res.json({ me: safe });
+});
+
+app.listen(3000, () => console.log("Auth API on http://localhost:3000"));

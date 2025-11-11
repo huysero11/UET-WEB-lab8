@@ -1,6 +1,20 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { api } from "../api";
 
+export const login = createAsyncThunk(
+  "auth/login",
+  async ({ email, password }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post("/auth/login", { email, password });
+      // data: { user, accessToken }
+      return data;
+    } catch (err) {
+      const msg = err?.response?.data?.message || "Login failed";
+      return rejectWithValue(msg);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -20,41 +34,26 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(login.pending, (state) => {
-      state.status = "loading";
-      state.error = null;
-    });
-    builder.addCase(login.fulfilled, (state, action) => {
-      state.status = "idle";
-      state.isAuth = true;
-      state.user = action.payload.user;
-      state.accessToken = action.payload.accessToken;
-    });
-    builder.addCase(login.rejected, (state, action) => {
-      state.status = "error";
-      state.error = action.payload || action.error.message;
-      state.isAuth = false;
-      state.user = null;
-      state.accessToken = null;
-    });
+    builder
+      .addCase(login.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.isAuth = true;
+        state.user = action.payload.user;
+        state.accessToken = action.payload.accessToken; // JWT từ BE
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.status = "error";
+        state.error = action.payload || action.error.message;
+        state.isAuth = false;
+        state.user = null;
+        state.accessToken = null;
+      });
   },
 });
 
-// Thunk: POST /auth/login -> { user, accessToken }
-const login = createAsyncThunk(
-  "auth/login",
-  async ({ email, password }, { rejectWithValue }) => {
-    // console.log(`In authSlice, login thunk with`, { email, password });
-    // console.log(`In authSlice, state = ${authSlice.state.isAuth}`);
-    try {
-      const { data } = await api.post("/auth/login", { email, password });
-      return data; // { user, accessToken }
-    } catch (err) {
-      const msg = err?.response?.data?.message || "Login failed";
-      return rejectWithValue(msg);
-    }
-  }
-);
-
 export default authSlice;
-export { login };
+export const { logout } = authSlice.actions;
